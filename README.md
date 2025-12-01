@@ -160,14 +160,14 @@ server_type = "cpx22"
 server_location = "nbg1"
 ```
 
-1. Initialize terraform environment (run only once)
-```bash
-  tofu init
-```
-
 1. Build terraform configuration
 ```bash
   nix build .#terraformConfigurations.$DEPLOY_HOSTNAME -o config.tf.json
+```
+
+1. Initialize terraform environment (run only once)
+```bash
+  tofu init
 ```
 
 1. Deploy initial resources (ssh key, firewall, initial server, ...)
