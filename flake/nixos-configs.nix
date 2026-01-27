@@ -33,7 +33,12 @@ in
             lib.warn "Using insecure development configuration (hosts/${hostname}/development.nix) !" ./../hosts/${hostname}/development.nix
           );
           specialArgs = {
-            inherit projectConfig hostConfig hostname;
+            inherit
+              inputs
+              projectConfig
+              hostConfig
+              hostname
+              ;
           };
         };
     in

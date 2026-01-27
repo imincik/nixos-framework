@@ -63,7 +63,7 @@
 
       _module.args = {
         modulesPath = "${inputs.nixpkgs}/nixos/modules";
-        inherit projectConfig;
+        inherit inputs projectConfig;
       };
 
       imports = [
