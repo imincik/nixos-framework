@@ -38,8 +38,12 @@ toplevel@{
             projectConfig = prodProjectConfig;
           }
         );
+
+      allTests = (import ../tests.nix { inherit mkTest; });
     in
     {
-      checks = import ../tests.nix { inherit mkTest; };
+      checks = allTests // {
+        inherit (config.packages) all-packages;
+      };
     };
 }
