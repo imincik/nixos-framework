@@ -8,25 +8,27 @@
 {
   flake.terraformConfigurations =
     let
-      # Deploy NixOS server host
-      mkDeployment =
-        hostname:
-        let
-          hostConfig = import ./../hosts/${hostname}/config.nix;
-          system = "x86_64-linux";
-        in
-        inputs.terranix.lib.terranixConfiguration {
-          inherit system;
-          modules = [
-            ../infra/variables.nix
-            ../infra/hetzner-firewall.nix
-            ../infra/hetzner-server.nix
-            ./../hosts/${hostname}/infra.nix
-          ];
-          extraArgs = {
-            inherit projectConfig hostConfig hostname;
-          };
+      system = "x86_64-linux";
+
+      # Import deployments.nix with mkDeployment function
+      hosts = import ../deployments.nix {
+        mkDeployment = hostname: import ../hosts/${hostname}/config.nix;
+      };
+
+      # Single unified deployment for all infrastructure
+      all = inputs.terranix.lib.terranixConfiguration {
+        inherit system;
+        modules = [
+          ../infra/variables.nix
+          ../infra/hetzner-ssh-key.nix
+          ../infra/hetzner-all-hosts.nix
+        ];
+        extraArgs = {
+          inherit projectConfig hosts;
         };
+      };
     in
-    import ../deployments.nix { inherit mkDeployment; };
+    {
+      inherit all;
+    };
 }

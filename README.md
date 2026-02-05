@@ -42,13 +42,29 @@ Then,
 
 1. Add new host to `hosts.nix` file
 
+1. Add new host to `deployments.nix` file
+
 1. Create host configuration in `hosts/<hostname>` directory and
    **add all files to Git**
+
+1. Create `hosts/<hostname>/config.nix` with domain and infrastructure settings
+```nix
+{
+  domain = "hostname.example.com";
+  infra = {
+    server_type = "cx23";
+    server_location = "nbg1";
+  };
+}
+```
 
 1. Include relevant [profiles](profiles/) in `default.nix` file
 
 1. Implement host specific configuration in `services.nix` file.
    See [NixOS options](https://search.nixos.org/options)
+
+1. Optionally, create `hosts/<hostname>/infra.nix` for host-specific
+   infrastructure (additional firewalls, etc.)
 
 1. Optionally, implement host specific development configuration in
    `development.nix` file
@@ -125,16 +141,29 @@ NixOS server deployment process is based on [OpenTofu](https://opentofu.org/)
 and [NixOS Anywhere](https://github.com/nix-community/nixos-anywhere). Both
 tools are provided by deployment (admin) shell environment.
 
-1. Add host to `deployment.nix` file (do only once)
+All infrastructure (SSH key, firewalls, servers) is managed from a single
+unified Terraform deployment in the project root directory.
+
+### Infrastructure deployment
+
+1. Add new hosts to `deployments.nix` file
+
+1. Configure per-host infrastructure variables in `hosts/<hostname>/config.nix`
+```nix
+{
+  domain = "hostname.example.com";
+
+  # Infrastructure variables
+  infra = {
+    server_type = "cx23";        # Hetzner server type
+    server_location = "nbg1";    # Hetzner datacenter location
+  };
+}
+```
 
 1. Set environment to `prod`
 ```bash
   echo prod > environment.txt
-```
-
-1. Move to host directory (this will activate direnv)
-```bash
-  cd hosts/<hostname>
 ```
 
 1. Launch admin shell environment
@@ -142,12 +171,9 @@ tools are provided by deployment (admin) shell environment.
   nix develop .#admin
 ```
 
-1. Create `.env` file containing Hetzner API Token (do only once)
+1. Create `.env` file in project root containing Hetzner API Token (do only once)
 ```bash
 # .env
-
-# Hostname detection
-export DEPLOY_HOSTNAME=$(basename "$PWD")
 
 # Hetzner Cloud API Token
 # Get it from: https://console.hetzner.cloud/ → Your Project → Security → API Tokens
@@ -157,37 +183,46 @@ export HCLOUD_TOKEN="<TOKEN>"
   source .env
 ```
 
-1. Create terraform variables file `terraform.tfvars` (do only once)
+1. Build unified terraform configuration
 ```bash
-# terraform.tfvars
-
-# SSH public key for server access
-# Get it with: cat ~/.ssh/id_rsa.pub
-ssh_public_key = ""
-
-# Optional: Override defaults
-server_type = "cpx22"
-server_location = "nbg1"
+  nix build .#terraformConfigurations.all -o config.tf.json
 ```
 
-1. Build terraform configuration
-```bash
-  nix build .#terraformConfigurations.$DEPLOY_HOSTNAME -o config.tf.json
-```
+   **Note:** After modifying `deployments.nix` or host configurations, you must
+   rebuild the configuration with this command before running `tofu apply`.
 
 1. Initialize terraform environment (run only once)
 ```bash
   tofu init
 ```
 
-1. Deploy initial resources (ssh key, firewall, initial server, ...)
+1. Deploy all infrastructure (SSH key, firewalls, servers for all hosts)
 ```bash
   tofu apply
 ```
 
-1. Deploy NixOS server
+### Removing a host
+
+1. Comment out or remove the host from `deployments.nix`
+
+1. Rebuild terraform configuration
 ```bash
-  nixos-anywhere --flake .#$DEPLOY_HOSTNAME root@$(tofu output -raw server_ip)
+  nix build .#terraformConfigurations.all -o config.tf.json
+```
+
+1. Apply changes (Terraform will destroy the removed host)
+```bash
+  tofu apply
+```
+
+### NixOS installation (per host)
+
+After infrastructure is deployed, install NixOS on each server:
+
+1. Deploy NixOS to a specific host
+```bash
+  export DEPLOY_HOSTNAME=<hostname>
+  nixos-anywhere --flake .#$DEPLOY_HOSTNAME root@$(tofu output -raw ${DEPLOY_HOSTNAME}_server_ip)
 ```
 
 1. Upload secrets decryption key (`id_ed25519_nixos_imincik_app`)
@@ -195,5 +230,7 @@ server_location = "nbg1"
   set DEPLOY_PRIVATE_SSH_KEY ~/.ssh/id_ed25519_nixos_imincik_app
 
   host-upload-key $DEPLOY_PRIVATE_SSH_KEY
-  host-cmd reboot
+  host-cmd "sudo reboot"
 ```
+
+Repeat for each host.
