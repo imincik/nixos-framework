@@ -38,7 +38,7 @@ Then,
 
 ## NixOS system
 
-### New host
+### Adding new host
 
 1. Add new host to `hosts.nix` file
 
@@ -66,7 +66,7 @@ Then,
   nix eval .#nixosConfigurations.<hostname>.config.system.build.toplevel
 ```
 
-### Virtual machine
+### Launching host in virtual machine
 
 1. Run host in local VM
 
@@ -83,9 +83,11 @@ environment type to `dev`:
   echo dev > environment.txt
 ```
 
-## Tests
+### Adding tests for host
 
 1. Add new host to `tests.nix` file
+
+1. Implement test in `hosts/<hostname>/test.nix` file
 
 1. Run all tests
 
@@ -93,7 +95,7 @@ environment type to `dev`:
   nix flake check
 ```
 
-## Secrets management
+### Secrets management
 
 1. Create identities (users and/or systems able to use secrets) and secrets in
    [secrets/secrets.nix](secrets/secrets.nix) file
