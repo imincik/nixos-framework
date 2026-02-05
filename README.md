@@ -20,12 +20,18 @@ On NixOS system, add following configuration and rebuild your system.
   };
 ```
 
-Then, deploy example host to Hetzner
+Then, run example host in a VM
+
+```bash
+  nix run .#example-vm
+```
+
+and deploy example host to Hetzner
 
 ```bash
   nix develop .#deployment
 
-  echo "export HCLOUD_TOKEN="<HETZNER-TOKEN>" > .env
+  echo "export HCLOUD_TOKEN=<HETZNER-TOKEN>" > .env
   source .env
 
   nix build .#terraformConfigurations.all -o config.tf.json
