@@ -3,7 +3,7 @@
 
 {
   resource.hcloud_ssh_key.admin = {
-    name = "admin-${projectConfig.adminUser}";
+    name = "admin";
     public_key = projectConfig.adminPublicSSHkey;
   };
 }
