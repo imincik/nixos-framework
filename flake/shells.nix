@@ -31,7 +31,7 @@
             function dev-help {
               echo -e "\n🚀 Development environment"
               echo
-              echo "${lib.replaceString "\n" "\ \n" projectConfig.systemBanner}"
+              echo "${lib.replaceString "\n" "\ \n" projectConfig.welcomeMessage}"
               echo "Packages: ${lib.concatStringsSep ", " packagesList}"
               echo "Python packages: ${lib.concatStringsSep ", " pythonPackagesList}"
               echo "Python: ${lib.getExe pythonEnv}"

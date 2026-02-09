@@ -8,7 +8,7 @@
   age.identityPaths = [ "/root/.agenix/agenix.key" ];
 
   # System banner
-  services.getty.greetingLine = projectConfig.systemBanner;
+  services.getty.greetingLine = projectConfig.welcomeMessage;
 
   # Security
   security.sudo = {

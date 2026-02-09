@@ -4,6 +4,6 @@
 {
   resource.hcloud_ssh_key.admin = {
     name = "admin";
-    public_key = projectConfig.adminPublicSSHkey;
+    public_key = projectConfig.adminPublicSSHKey;
   };
 }
