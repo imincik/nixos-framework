@@ -15,7 +15,7 @@ in
     home = "/home/${projectConfig.adminUser}";
     extraGroups = extraGroups;
     openssh.authorizedKeys.keys = [
-      projectConfig.adminPublicSSHkey
+      projectConfig.adminPublicSSHKey
     ];
     shell = pkgs.bash;
   };
