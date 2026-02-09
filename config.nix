@@ -1,5 +1,5 @@
 {
-  # GitHub repository path for this NixOS framework project.
+  # GitHub repository path for this NixOS Framework project.
   # Format: "github:owner/repo".
   thisRepository = "github:imincik/nixos-framework";
 
@@ -13,9 +13,10 @@
   # Replace with your actual SSH public key (ssh-ed25519, ssh-rsa, etc.).
   adminPublicSSHKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleKeyDataHereReplaceWithYourActualKey user@example.com";
 
-  # System banner displayed to users upon login (MOTD).
-  systemBanner = ''
-    You are welcome here, so long as you come in a good faith.
+  # Welcome message displayed to users upon login (MOTD) or when entering shell
+  # environment.
+  welcomeMessage = ''
+    Welcome to a NixOS Framework system.
   '';
 
   # NixOS state version - determines the default settings for stateful data.
